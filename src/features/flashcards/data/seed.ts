@@ -1,0 +1,48 @@
+import type { Flashcard } from "../types";
+
+export const seedCards: Flashcard[] = [
+  {
+    id: "seed-1",
+    german: "Entscheidung",
+    translation: "decision",
+    article: "die",
+    plural: "die Entscheidungen",
+    example: "Diese Entscheidung war sehr wichtig.",
+    level: "A2",
+    tags: ["noun", "daily"],
+    status: "active",
+    ease: 2.5,
+    repetitions: 0,
+    nextReviewAt: new Date().toISOString(),
+    createdAt: new Date().toISOString(),
+    source: "seed",
+  },
+  {
+    id: "seed-2",
+    german: "sich entscheiden",
+    translation: "to decide",
+    example: "Ich muss mich heute entscheiden.",
+    level: "A2",
+    tags: ["verb"],
+    status: "active",
+    ease: 2.5,
+    repetitions: 0,
+    nextReviewAt: new Date().toISOString(),
+    createdAt: new Date().toISOString(),
+    source: "seed",
+  },
+  {
+    id: "seed-3",
+    german: "zuverlässig",
+    translation: "reliable",
+    example: "Er ist sehr zuverlässig.",
+    level: "B1",
+    tags: ["adjective"],
+    status: "future",
+    ease: 2.5,
+    repetitions: 0,
+    nextReviewAt: new Date().toISOString(),
+    createdAt: new Date().toISOString(),
+    source: "seed",
+  }
+];
