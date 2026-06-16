@@ -37,12 +37,16 @@ export default function FlashcardApp() {
           onDelete={flashcards.deleteCard}
         />
 
-        <AddVocabularyPanel onAdd={flashcards.addCard} />
+        <div className="secondary-panels">
+          <AddVocabularyPanel onAdd={flashcards.addCard} />
 
-        <CoreVocabularyPanel
-          existingCards={flashcards.cards}
-          onAddMany={flashcards.addCards}
-        />
+          <div className="core-panel-slot">
+            <CoreVocabularyPanel
+              existingCards={flashcards.cards}
+              onAddMany={flashcards.addCards}
+            />
+          </div>
+        </div>
       </div>
     </main>
   );

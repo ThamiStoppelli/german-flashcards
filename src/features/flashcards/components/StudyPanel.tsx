@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, type ReactNode } from "react";
 import type { CardStats, CardStatus, Flashcard } from "../types";
 
 type StudyPanelProps = {
@@ -11,6 +11,72 @@ type StudyPanelProps = {
   onMove: (id: string, status: CardStatus) => void;
   onOpenFuture: () => void;
 };
+
+type StudyIconProps = {
+  children: ReactNode;
+};
+
+function StudyIcon({ children }: StudyIconProps) {
+  return (
+    <svg
+      aria-hidden="true"
+      className="study-action-icon"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.9"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      {children}
+    </svg>
+  );
+}
+
+function RevealIcon() {
+  return (
+    <StudyIcon>
+      <path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6S2 12 2 12Z" />
+      <circle cx="12" cy="12" r="2.5" />
+    </StudyIcon>
+  );
+}
+
+function AgainIcon() {
+  return (
+    <StudyIcon>
+      <path d="M4 10a8 8 0 1 1 2 7" />
+      <path d="M4 4v6h6" />
+    </StudyIcon>
+  );
+}
+
+function ActiveStudyIcon() {
+  return (
+    <StudyIcon>
+      <circle cx="12" cy="12" r="9" />
+      <path d="m10 8 6 4-6 4Z" />
+    </StudyIcon>
+  );
+}
+
+function KnownIcon() {
+  return (
+    <StudyIcon>
+      <circle cx="12" cy="12" r="9" />
+      <path d="m8 12 2.5 2.5L16 9" />
+    </StudyIcon>
+  );
+}
+
+function LaterIcon() {
+  return (
+    <StudyIcon>
+      <circle cx="12" cy="12" r="9" />
+      <path d="M12 7v5l3 2" />
+    </StudyIcon>
+  );
+}
 
 export function StudyPanel({
   card,
@@ -75,14 +141,46 @@ export function StudyPanel({
           <div className="study-actions">
             {!showAnswer ? (
               <button className="btn" type="button" onClick={() => setShowAnswer(true)}>
-                Show answer
+                <RevealIcon />
+                <span>Show answer</span>
               </button>
             ) : (
               <>
-                <button className="btn danger" type="button" onClick={() => handleReview("again")}>Again</button>
-                <button className="btn" type="button" onClick={() => handleReview("good")}>Keep active</button>
-                <button className="btn success" type="button" onClick={() => handleMove("learned")}>I know this</button>
-                <button className="btn warn" type="button" onClick={() => handleMove("future")}>Later</button>
+                <button
+                  className="btn danger"
+                  type="button"
+                  onClick={() => handleReview("again")}
+                >
+                  <AgainIcon />
+                  <span>Again</span>
+                </button>
+
+                <button
+                  className="btn"
+                  type="button"
+                  onClick={() => handleReview("good")}
+                >
+                  <ActiveStudyIcon />
+                  <span>Keep active</span>
+                </button>
+
+                <button
+                  className="btn success"
+                  type="button"
+                  onClick={() => handleMove("learned")}
+                >
+                  <KnownIcon />
+                  <span>I know this</span>
+                </button>
+
+                <button
+                  className="btn warn"
+                  type="button"
+                  onClick={() => handleMove("future")}
+                >
+                  <LaterIcon />
+                  <span>Later</span>
+                </button>
               </>
             )}
           </div>
