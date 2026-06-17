@@ -69,7 +69,7 @@ export function CoreVocabularyPanel({
         `${card.level}:${card.german.toLocaleLowerCase("de")}`),
     );
 
-    const additions = coreVocabulary[level].filter(
+    const additions = selectedWords.filter(
       (card) =>
         !existing.has(`${card.level}:${card.german.toLocaleLowerCase("de")}`),
     );

@@ -34,8 +34,7 @@ body {
 
 button,
 input,
-textarea,
-select {
+textarea {
   font: inherit;
 }
 
@@ -45,8 +44,7 @@ button {
 
 button:focus-visible,
 input:focus-visible,
-textarea:focus-visible,
-select:focus-visible {
+textarea:focus-visible {
   outline: 3px solid rgba(199, 125, 69, .35);
   outline-offset: 2px;
 }
@@ -378,8 +376,7 @@ p {
 }
 
 .input,
-textarea,
-select {
+textarea {
   width: 100%;
   border: 1px solid var(--line);
   background: white;
@@ -390,8 +387,7 @@ select {
 }
 
 .input:focus,
-textarea:focus,
-select:focus {
+textarea:focus {
   border-color: var(--brand-2);
   box-shadow: 0 0 0 4px rgba(199, 125, 69, .10);
 }
