@@ -16,6 +16,5 @@ export function saveCards(storageKey: string, cards: Flashcard[]): void {
   try {
     window.localStorage.setItem(storageKey, JSON.stringify(cards));
   } catch {
-    // The UI remains usable even if storage is unavailable or full.
   }
 }
