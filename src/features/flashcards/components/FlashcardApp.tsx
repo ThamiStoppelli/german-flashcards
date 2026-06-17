@@ -15,7 +15,12 @@ export default function FlashcardApp() {
 
   return (
     <main className="app-shell">
-      <AppHeader onReset={flashcards.resetCards} onClear={flashcards.clearCards} />
+      <AppHeader 
+        onExport={flashcards.exportDeck}
+        onImport={flashcards.importDeck}
+        onReset={flashcards.resetCards}
+        onClear={flashcards.clearCards} 
+      />
 
       <div className="dashboard-grid">
         <StudyPanel

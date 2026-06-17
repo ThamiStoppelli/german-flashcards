@@ -4,7 +4,12 @@ import { useEffect, useMemo, useState } from "react";
 import { STORAGE_KEY } from "../constants";
 import { seedCards } from "../data/seed";
 import { calculateNextReview, createCard, shuffle } from "../lib/cards";
-import { loadCards, saveCards } from "../lib/storage";
+import {
+  exportCards,
+  loadCards,
+  readImportedCards,
+  saveCards
+} from "../lib/storage";
 import type { CandidateCard, CardDraft, CardStatus, Flashcard } from "../types";
 
 export function useFlashcards() {
@@ -65,15 +70,15 @@ export function useFlashcards() {
       previous.map((card) =>
         card.id === id
           ? {
-              ...card,
-              german: draft.german.trim(),
-              translation: draft.translation.trim(),
-              article: draft.article.trim(),
-              plural: draft.plural.trim(),
-              example: draft.example.trim(),
-              level: draft.level,
-              status: draft.status,
-            }
+            ...card,
+            german: draft.german.trim(),
+            translation: draft.translation.trim(),
+            article: draft.article.trim(),
+            plural: draft.plural.trim(),
+            example: draft.example.trim(),
+            level: draft.level,
+            status: draft.status,
+          }
           : card,
       ),
     );
@@ -91,14 +96,14 @@ export function useFlashcards() {
       previous.map((card) =>
         card.id === id
           ? {
-              ...card,
-              repetitions: quality === "again" ? 0 : card.repetitions + 1,
-              ease:
-                quality === "again"
-                  ? Math.max(1.3, card.ease - 0.2)
-                  : Math.min(3.2, card.ease + 0.08),
-              nextReviewAt: calculateNextReview(card.repetitions, quality),
-            }
+            ...card,
+            repetitions: quality === "again" ? 0 : card.repetitions + 1,
+            ease:
+              quality === "again"
+                ? Math.max(1.3, card.ease - 0.2)
+                : Math.min(3.2, card.ease + 0.08),
+            nextReviewAt: calculateNextReview(card.repetitions, quality),
+          }
           : card,
       ),
     );
@@ -108,6 +113,57 @@ export function useFlashcards() {
   function deleteCard(id: string) {
     setCards((previous) => previous.filter((card) => card.id !== id));
     setCurrentId(null);
+  }
+
+  function exportDeck() {
+    exportCards(cards);
+  }
+
+  async function importDeck(
+    file: File,
+    mode: "merge" | "replace",
+  ): Promise<{ imported: number; skipped: number }> {
+    const importedCards = await readImportedCards(file);
+
+    if (mode === "replace") {
+      setCards(importedCards);
+      setCurrentId(null);
+
+      return {
+        imported: importedCards.length,
+        skipped: 0,
+      };
+    }
+
+    const existingKeys = new Set(
+      cards.map(
+        (card) =>
+          `${card.level}:${card.german
+            .trim()
+            .toLocaleLowerCase("de")}`,
+      ),
+    );
+
+    const uniqueCards = importedCards.filter((card) => {
+      const key = `${card.level}:${card.german
+        .trim()
+        .toLocaleLowerCase("de")}`;
+
+      if (existingKeys.has(key)) {
+        return false;
+      }
+
+      existingKeys.add(key);
+      return true;
+    });
+
+    setCards((previous) => [...uniqueCards, ...previous]);
+    setCurrentId(null);
+
+    return {
+      imported: uniqueCards.length,
+      skipped: importedCards.length - uniqueCards.length,
+    };
   }
 
   function resetCards() {
@@ -125,6 +181,8 @@ export function useFlashcards() {
     currentCard,
     stats,
     progress,
+    exportDeck,
+    importDeck,
     addCard,
     addCards,
     updateCard,

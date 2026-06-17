@@ -1,11 +1,24 @@
 import { GERMAN_LEVELS, STATUS_LABELS } from "../constants";
 import type { CardDraft, CardStatus, GermanLevel } from "../types";
+import { SelectMenu } from "./SelectMenu";
 
 type CardFieldsProps = {
   value: CardDraft;
   onChange: (value: CardDraft) => void;
   includeStatus?: boolean;
 };
+
+const LEVEL_OPTIONS = GERMAN_LEVELS.map((level) => ({
+  value: level,
+  label: level,
+}));
+
+const STATUS_OPTIONS = (
+  Object.keys(STATUS_LABELS) as CardStatus[]
+).map((status) => ({
+  value: status,
+  label: STATUS_LABELS[status],
+}));
 
 export function CardFields({ value, onChange, includeStatus = true }: CardFieldsProps) {
   return (
@@ -32,13 +45,17 @@ export function CardFields({ value, onChange, includeStatus = true }: CardFields
           value={value.article}
           onChange={(event) => onChange({ ...value, article: event.target.value })}
         />
-        <select
-          aria-label="German level"
+        <SelectMenu
+          ariaLabel="German level"
           value={value.level}
-          onChange={(event) => onChange({ ...value, level: event.target.value as GermanLevel })}
-        >
-          {GERMAN_LEVELS.map((level) => <option key={level}>{level}</option>)}
-        </select>
+          options={LEVEL_OPTIONS}
+          onChange={(level: GermanLevel) =>
+            onChange({
+              ...value,
+              level,
+            })
+          }
+        />
       </div>
       <input
         className="input"
@@ -54,15 +71,17 @@ export function CardFields({ value, onChange, includeStatus = true }: CardFields
         onChange={(event) => onChange({ ...value, example: event.target.value })}
       />
       {includeStatus && (
-        <select
-          aria-label="Destination deck"
+        <SelectMenu
+          ariaLabel="Destination deck"
           value={value.status}
-          onChange={(event) => onChange({ ...value, status: event.target.value as CardStatus })}
-        >
-          {(Object.keys(STATUS_LABELS) as CardStatus[]).map((status) => (
-            <option key={status} value={status}>{STATUS_LABELS[status]}</option>
-          ))}
-        </select>
+          options={STATUS_OPTIONS}
+          onChange={(status: CardStatus) =>
+            onChange({
+              ...value,
+              status,
+            })
+          }
+        />
       )}
     </>
   );

@@ -9,6 +9,23 @@ type AddVocabularyPanelProps = {
   onAdd: (card: CandidateCard, source: Flashcard["source"], status: CardStatus) => void;
 };
 
+function PlusIcon() {
+  return (
+    <svg
+      aria-hidden="true"
+      className="add-action-icon"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+    >
+      <path d="M12 5v14" />
+      <path d="M5 12h14" />
+    </svg>
+  );
+}
+
 export function AddVocabularyPanel({ onAdd }: AddVocabularyPanelProps) {
   const [draft, setDraft] = useState<CardDraft>(EMPTY_CARD_DRAFT);
 
@@ -30,7 +47,13 @@ export function AddVocabularyPanel({ onAdd }: AddVocabularyPanelProps) {
       <p>Create your own card and choose where it belongs.</p>
       <form className="form" onSubmit={handleSubmit}>
         <CardFields value={draft} onChange={setDraft} />
-        <button className="btn" type="submit">Add card</button>
+        <button 
+          className="btn core-add-button" 
+          type="submit"
+        >
+          <PlusIcon />
+          <span>Add card</span>
+        </button>
       </form>
     </section>
   );

@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState, type CSSProperties, type ReactNode } from "react";
+import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from "react";
 import { EMPTY_CARD_DRAFT, SHORT_STATUS_LABELS, STATUS_LABELS } from "../constants";
 import type { CardDraft, CardStatus, Flashcard } from "../types";
 import { CardFields } from "./CardFields";
@@ -91,11 +91,54 @@ export function DeckCard({ card, onUpdate, onMove, onDelete }: DeckCardProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const menuButtonRef = useRef<HTMLButtonElement>(null);
+  const menuRef = useRef<HTMLDivElement>(null);
   const [menuStyle, setMenuStyle] = useState<CSSProperties>({});
   const [draft, setDraft] = useState<CardDraft>(EMPTY_CARD_DRAFT);
   const availableStatuses = (
     Object.keys(STATUS_LABELS) as CardStatus[]
   ).filter((status) => status !== card.status);
+
+  useEffect(() => {
+    if (!isMenuOpen) {
+      return;
+    }
+
+    function handleOutsideClick(event: PointerEvent) {
+      const target = event.target as Node;
+
+      const clickedButton = menuButtonRef.current?.contains(target);
+      const clickedMenu = menuRef.current?.contains(target);
+
+      if (clickedButton || clickedMenu) {
+        return;
+      }
+
+      setIsMenuOpen(false);
+    }
+
+    function closeMenu() {
+      setIsMenuOpen(false);
+    }
+
+    function handleKeyDown(event: KeyboardEvent) {
+      if (event.key === "Escape") {
+        setIsMenuOpen(false);
+        menuButtonRef.current?.focus();
+      }
+    }
+
+    document.addEventListener("pointerdown", handleOutsideClick);
+    document.addEventListener("keydown", handleKeyDown);
+    window.addEventListener("scroll", closeMenu, true);
+    window.addEventListener("resize", closeMenu);
+
+    return () => {
+      document.removeEventListener("pointerdown", handleOutsideClick);
+      document.removeEventListener("keydown", handleKeyDown);
+      window.removeEventListener("scroll", closeMenu, true);
+      window.removeEventListener("resize", closeMenu);
+    };
+  }, [isMenuOpen]);
 
   function toggleMenu() {
     if (isMenuOpen) {
@@ -206,6 +249,7 @@ export function DeckCard({ card, onUpdate, onMove, onDelete }: DeckCardProps) {
 
               {isMenuOpen && (
                 <div
+                  ref={menuRef}
                   className="action-menu"
                   role="menu"
                   aria-label={`Actions for ${card.german}`}

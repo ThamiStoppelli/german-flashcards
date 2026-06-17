@@ -60,6 +60,7 @@ select:focus-visible {
 
 .header {
   display: flex;
+  position: relative;
   justify-content: space-between;
   gap: 16px;
   align-items: center;
@@ -97,6 +98,39 @@ select:focus-visible {
   gap: 10px;
   flex-wrap: wrap;
   justify-content: flex-end;
+}
+
+.header-actions .btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  min-height: 38px;
+  padding: 8px 12px;
+  font-size: 13px;
+  line-height: 1;
+}
+
+.header-action-icon {
+  width: 15px;
+  height: 15px;
+  flex: 0 0 15px;
+}
+
+.header-notice {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  z-index: 30;
+  max-width: 420px;
+  padding: 10px 13px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: white;
+  box-shadow: var(--shadow);
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.4;
 }
 
 .card {
@@ -296,23 +330,27 @@ p {
 
 .study-actions {
   display: flex;
-  gap: 10px;
+  gap: 7px;
   flex-wrap: wrap;
   justify-content: center;
-  margin-top: 16px;
+  margin-top: 14px;
 }
 
 .study-actions .btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
+  gap: 7px;
+  min-height: 38px;
+  padding: 8px 12px;
+  font-size: 13px;
+  line-height: 1;
 }
 
 .study-action-icon {
-  width: 17px;
-  height: 17px;
-  flex: 0 0 17px;
+  width: 15px;
+  height: 15px;
+  flex: 0 0 15px;
 }
 
 .empty-study h2 {
@@ -515,6 +553,25 @@ textarea {
 
 .core-add-button {
   width: 100%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.add-card-button {
+  width: 100%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+.add-action-icon {
+  width: 17px;
+  height: 17px;
+  flex: 0 0 17px;
+  display: block;
 }
 
 .notice {
@@ -736,6 +793,91 @@ textarea {
   text-transform: uppercase;
 }
 
+.select-menu {
+  position: relative;
+  width: 100%;
+  min-width: 0;
+}
+
+.select-menu-trigger {
+  width: 100%;
+  min-height: 46px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 13px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: white;
+  color: var(--ink);
+  text-align: left;
+}
+
+.select-menu-trigger:hover {
+  border-color: #d7cabc;
+}
+
+.select-menu-trigger[aria-expanded="true"] {
+  border-color: var(--brand-2);
+  box-shadow: 0 0 0 4px rgba(199, 125, 69, .10);
+}
+
+.select-menu-chevron {
+  width: 17px;
+  height: 17px;
+  flex: 0 0 17px;
+  transition: transform .15s ease;
+}
+
+.select-menu-trigger[aria-expanded="true"]
+  .select-menu-chevron {
+  transform: rotate(180deg);
+}
+
+.select-menu-options {
+  position: fixed;
+  z-index: 1000;
+  max-height: 270px;
+  padding: 6px;
+  overflow-y: auto;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: white;
+  box-shadow: 0 16px 40px rgba(23, 32, 51, .16);
+}
+
+.select-menu-option {
+  width: 100%;
+  min-height: 42px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 9px 11px;
+  border: 0;
+  border-radius: 9px;
+  background: transparent;
+  color: var(--ink);
+  text-align: left;
+}
+
+.select-menu-option:hover,
+.select-menu-option.active {
+  background: #f5f2ed;
+}
+
+.select-menu-option.selected {
+  color: var(--brand);
+  font-weight: 750;
+}
+
+.select-menu-check {
+  width: 17px;
+  height: 17px;
+  flex: 0 0 17px;
+}
+
 .menu-icon {
   width: 17px;
   height: 17px;
@@ -818,9 +960,16 @@ textarea {
     gap: 7px;
   }
 
+  .header-notice {
+    left: 0;
+    right: 0;
+    max-width: none;
+  }
+
   .header-actions .btn {
-    padding: 10px 12px;
-    font-size: 12px;
+    min-height: 38px;
+    padding: 8px 12px;
+    font-size: 13px;
   }
 
   .logo small {
@@ -842,7 +991,8 @@ textarea {
   }
 
   .study-actions .btn {
-    flex: 1 1 44%;
+    flex: 1 1 auto;
+    min-width: 120px;
   }
 
   .two-columns,

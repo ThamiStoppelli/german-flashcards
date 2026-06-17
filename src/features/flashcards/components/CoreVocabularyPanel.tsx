@@ -4,11 +4,12 @@ import { useState } from "react";
 import { GERMAN_LEVELS, STATUS_LABELS } from "../constants";
 import { coreVocabulary, coreVocabularyCount } from "../data/vocabulary";
 import type { CandidateCard, CardStatus, Flashcard, GermanLevel } from "../types";
+import { SelectMenu } from "./SelectMenu";
 
 type CoreVocabularyPanelProps = {
   existingCards: Flashcard[];
   onAddMany: (
-    cards: CandidateCard[], 
+    cards: CandidateCard[],
     source: Flashcard["source"],
     status: CardStatus
   ) => void;
@@ -23,9 +24,38 @@ const LEVEL_DESCRIPTIONS: Record<GermanLevel, string> = {
   C2: "Nuanced vocabulary for highly precise, academic and sophisticated expression.",
 };
 
+const LEVEL_OPTIONS = GERMAN_LEVELS.map((item) => ({
+  value: item,
+  label: item,
+}));
+
+const STATUS_OPTIONS = (
+  Object.keys(STATUS_LABELS) as CardStatus[]
+).map((item) => ({
+  value: item,
+  label: STATUS_LABELS[item],
+}));
+
+function PlusIcon() {
+  return (
+    <svg
+      aria-hidden="true"
+      className="add-action-icon"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+    >
+      <path d="M12 5v14" />
+      <path d="M5 12h14" />
+    </svg>
+  );
+}
+
 export function CoreVocabularyPanel({
-  existingCards, 
-  onAddMany 
+  existingCards,
+  onAddMany
 }: CoreVocabularyPanelProps) {
   const [level, setLevel] = useState<GermanLevel>("A1");
   const [status, setStatus] = useState<CardStatus>("future");
@@ -35,12 +65,12 @@ export function CoreVocabularyPanel({
 
   function addVocabulary() {
     const existing = new Set(
-      existingCards.map((card) => 
+      existingCards.map((card) =>
         `${card.level}:${card.german.toLocaleLowerCase("de")}`),
     );
 
     const additions = coreVocabulary[level].filter(
-      (card) => 
+      (card) =>
         !existing.has(`${card.level}:${card.german.toLocaleLowerCase("de")}`),
     );
 
@@ -61,35 +91,24 @@ export function CoreVocabularyPanel({
       </p>
 
       <div className="core-form">
-        <select 
-          aria-label="Vocabulary level" 
-          value={level} 
-          onChange={(event) => {
-            setLevel(event.target.value as GermanLevel);
+        <SelectMenu
+          ariaLabel="Vocabulary level"
+          value={level}
+          options={LEVEL_OPTIONS}
+          onChange={(nextLevel) => {
+            setLevel(nextLevel);
             setMessage("");
           }}
-        >
-          {GERMAN_LEVELS.map((item) => ( 
-            <option key={item} value={item}>
-              {item}
-            </option>
-          ))}
-        </select>
-        <select
-          aria-label="Destination deck" 
-          value={status} 
-          onChange={(event) =>
-            {
-              setStatus(event.target.value as CardStatus);
-              setMessage("");
-            }}
-        >
-          {(Object.keys(STATUS_LABELS) as CardStatus[]).map((item) => (
-            <option key={item} value={item}>
-              {STATUS_LABELS[item]}
-            </option>
-          ))}
-        </select>
+        />
+        <SelectMenu
+          ariaLabel="Destination deck"
+          value={status}
+          options={STATUS_OPTIONS}
+          onChange={(nextStatus) => {
+            setStatus(nextStatus);
+            setMessage("");
+          }}
+        />
       </div>
 
       <div className="level-summary">
@@ -101,7 +120,7 @@ export function CoreVocabularyPanel({
         <p>{LEVEL_DESCRIPTIONS[level]}</p>
       </div>
 
-<div className="vocabulary-preview">
+      <div className="vocabulary-preview">
         <div className="vocabulary-preview-heading">
           <h3>Vocabulary preview</h3>
           <span>{selectedWords.length} words</span>
@@ -141,7 +160,10 @@ export function CoreVocabularyPanel({
           type="button"
           onClick={addVocabulary}
         >
-          Add all {level} words to {STATUS_LABELS[status]}
+          <PlusIcon />
+          <span>
+            Add all {level} words to {STATUS_LABELS[status]}
+          </span>
         </button>
       </div>
     </section>
