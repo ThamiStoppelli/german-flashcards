@@ -1,10 +1,6 @@
 "use client";
-import { 
-  useRef, 
-  useState, 
-  type ChangeEvent,
-  type ReactNode, 
-} from "react";
+import { useRef, useState, type ChangeEvent, type ReactNode } from "react";
+import { ImportDeckModal } from "./ImportDeckModal";
 
 type ImportResult = {
   imported: number;
@@ -91,8 +87,10 @@ export function AppHeader({
 }: AppHeaderProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [message, setMessage] = useState("");
+  const [pendingFile, setPendingFile] = useState<File | null>(null);
+  const [isImporting, setIsImporting] = useState(false);
 
-  async function handleImport(
+  function handleImport(
     event: ChangeEvent<HTMLInputElement>,
   ) {
     const file = event.target.files?.[0];
@@ -101,25 +99,28 @@ export function AppHeader({
       return;
     }
 
-    const shouldReplace = window.confirm(
-      [
-        "How should the imported deck be handled?",
-        "",
-        "OK: Replace the current deck",
-        "Cancel: Merge with the current deck",
-      ].join("\n"),
-    );
+    setPendingFile(file);
+    setMessage("");
+    event.target.value = "";
+  }
 
-    const mode = shouldReplace ? "replace" : "merge";
+  async function confirmImport(mode: "merge" | "replace") {
+    if (!pendingFile) {
+      return;
+    }
+
+    setIsImporting(true);
 
     try {
-      const result = await onImport(file, mode);
+      const result = await onImport(pendingFile, mode);
 
       setMessage(
         mode === "replace"
           ? `Imported ${result.imported} cards and replaced the current deck.`
           : `Imported ${result.imported} cards. ${result.skipped} duplicates were skipped.`,
       );
+
+      setPendingFile(null);
     } catch (error) {
       setMessage(
         error instanceof Error
@@ -127,7 +128,7 @@ export function AppHeader({
           : "The deck could not be imported.",
       );
     } finally {
-      event.target.value = "";
+      setIsImporting(false);
     }
   }
 
@@ -182,6 +183,21 @@ export function AppHeader({
           </div>
         )}
       </div>
+
+      {pendingFile && (
+        <ImportDeckModal
+          fileName={pendingFile.name}
+          isImporting={isImporting}
+          onMerge={() => confirmImport("merge")}
+          onReplace={() => confirmImport("replace")}
+          onCancel={() => {
+            if (!isImporting) {
+              setPendingFile(null);
+            }
+          }}
+        />
+      )}
+
     </header>
   );
 }

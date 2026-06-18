@@ -1,4 +1,4 @@
-import type { Flashcard } from "../types";
+import type { Flashcard, CandidateCard } from "../types";
 
 export function loadCards(storageKey: string, fallback: Flashcard[]): Flashcard[] {
   try {
@@ -94,6 +94,34 @@ function isFlashcard(value: unknown): value is Flashcard {
   );
 }
 
+function isCandidateCard(value: unknown): value is CandidateCard {
+  if (!value || typeof value !== "object") {
+    return false;
+  }
+
+  const card = value as Partial<CandidateCard>;
+
+  const validLevel =
+    card.level === "A1" ||
+    card.level === "A2" ||
+    card.level === "B1" ||
+    card.level === "B2" ||
+    card.level === "C1" ||
+    card.level === "C2";
+
+  const validTags =
+    card.tags === undefined || Array.isArray(card.tags);
+
+  return (
+    typeof card.german === "string" &&
+    card.german.trim().length > 0 &&
+    typeof card.translation === "string" &&
+    card.translation.trim().length > 0 &&
+    validLevel &&
+    validTags
+  );
+}
+
 export async function readImportedCards(
   file: File,
 ): Promise<Flashcard[]> {
@@ -105,23 +133,58 @@ export async function readImportedCards(
     throw new Error("The selected file is not valid JSON.");
   }
 
-  if (!parsed || typeof parsed !== "object") {
+  let importedCards: unknown[];
+
+  if (Array.isArray(parsed)) {
+    importedCards = parsed;
+  } else if (parsed && typeof parsed === "object") {
+    const deck = parsed as {
+      app?: string;
+      version?: number;
+      cards?: unknown[];
+    };
+
+    if (
+      deck.app !== "wortschatz" ||
+      deck.version !== 1 ||
+      !Array.isArray(deck.cards)
+    ) {
+      throw new Error("This is not a supported Wortschatz deck file.");
+    }
+
+    importedCards = deck.cards;
+  } else {
     throw new Error("This is not a valid Wortschatz deck.");
   }
 
-  const deck = parsed as Partial<DeckExport>;
+  const now = new Date().toISOString();
 
-  if (
-    deck.app !== "wortschatz" ||
-    deck.version !== 1 ||
-    !Array.isArray(deck.cards)
-  ) {
-    throw new Error("This is not a supported Wortschatz deck file.");
-  }
+  return importedCards.map((value, index) => {
+    if (isFlashcard(value)) {
+      return value;
+    }
 
-  if (!deck.cards.every(isFlashcard)) {
-    throw new Error("Some cards inside this deck are invalid.");
-  }
+    if (isCandidateCard(value)) {
+      return {
+        id: crypto.randomUUID(),
+        german: value.german.trim(),
+        translation: value.translation.trim(),
+        article: value.article,
+        plural: value.plural,
+        example: value.example,
+        level: value.level,
+        tags: value.tags ?? [],
+        status: "active",
+        ease: 2.5,
+        repetitions: 0,
+        nextReviewAt: now,
+        createdAt: now,
+        source: "manual",
+      };
+    }
 
-  return deck.cards;
+    throw new Error(
+      `Card ${index + 1} has an invalid format.`,
+    );
+  });
 }
