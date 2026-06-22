@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { GERMAN_LEVELS, STATUS_LABELS } from "../constants";
 import { coreVocabulary, coreVocabularyCount } from "../data/vocabulary";
 import type { CandidateCard, CardStatus, Flashcard, GermanLevel } from "../types";
@@ -53,6 +53,23 @@ function PlusIcon() {
   );
 }
 
+function ChevronIcon() {
+  return (
+    <svg
+      aria-hidden="true"
+      className="core-toggle-icon"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="m6 9 6 6 6-6" />
+    </svg>
+  );
+}
+
 export function CoreVocabularyPanel({
   existingCards,
   onAddMany
@@ -60,8 +77,15 @@ export function CoreVocabularyPanel({
   const [level, setLevel] = useState<GermanLevel>("A1");
   const [status, setStatus] = useState<CardStatus>("future");
   const [message, setMessage] = useState("");
+  const [isExpanded, setIsExpanded] = useState(true);
 
   const selectedWords = coreVocabulary[level];
+
+  useEffect(() => {
+    const mediaQuery = window.matchMedia("(max-width: 840px)");
+
+    setIsExpanded(!mediaQuery.matches);
+  }, []);
 
   function addVocabulary() {
     const existing = new Set(
@@ -85,87 +109,106 @@ export function CoreVocabularyPanel({
 
   return (
     <section className="card section core-panel">
-      <h2>Core vocabulary library</h2>
-      <p>
-        {coreVocabularyCount} curated words total, with 100 words per CEFR level.
-      </p>
-
-      <div className="core-form">
-        <SelectMenu
-          ariaLabel="Vocabulary level"
-          value={level}
-          options={LEVEL_OPTIONS}
-          onChange={(nextLevel) => {
-            setLevel(nextLevel);
-            setMessage("");
-          }}
-        />
-        <SelectMenu
-          ariaLabel="Destination deck"
-          value={status}
-          options={STATUS_OPTIONS}
-          onChange={(nextStatus) => {
-            setStatus(nextStatus);
-            setMessage("");
-          }}
-        />
-      </div>
-
-      <div className="level-summary">
-        <div className="level-summary-heading">
-          <span className="level-summary-badge">{level}</span>
-          <strong>{selectedWords.length} curated words</strong>
+      <div className="core-panel-header">
+        <div>
+          <h2>Core vocabulary library</h2>
+          <p>
+            {coreVocabularyCount} curated words total, with 100 words per CEFR level.
+          </p>
         </div>
-
-        <p>{LEVEL_DESCRIPTIONS[level]}</p>
-      </div>
-
-      <div className="vocabulary-preview">
-        <div className="vocabulary-preview-heading">
-          <h3>Vocabulary preview</h3>
-          <span>{selectedWords.length} words</span>
-        </div>
-
-        <ul className="vocabulary-preview-list">
-          {selectedWords.map((word, index) => (
-            <li key={`${level}-${word.german}-${index}`}>
-              <div className="vocabulary-preview-copy">
-                <strong>
-                  {word.article ? `${word.article} ` : ""}
-                  {word.german}
-                </strong>
-
-                <span>{word.translation}</span>
-              </div>
-
-              {word.plural && (
-                <span className="vocabulary-preview-plural">
-                  {word.plural}
-                </span>
-              )}
-            </li>
-          ))}
-        </ul>
-      </div>
-
-      <div className="core-panel-footer">
-        {message && (
-          <div className="notice" role="status">
-            {message}
-          </div>
-        )}
 
         <button
-          className="btn secondary core-add-button"
+          className="btn secondary compact-button core-toggle-button"
           type="button"
-          onClick={addVocabulary}
+          aria-expanded={isExpanded}
+          onClick={() => setIsExpanded((current) => !current)}
         >
-          <PlusIcon />
-          <span>
-            Add all {level} words to {STATUS_LABELS[status]}
-          </span>
+          <span>{isExpanded ? "Hide library" : "Choose vocabulary"}</span>
+          <ChevronIcon />
         </button>
       </div>
+
+      {isExpanded && (
+        <div className="core-panel-content">
+
+          <div className="core-form">
+            <SelectMenu
+              ariaLabel="Vocabulary level"
+              value={level}
+              options={LEVEL_OPTIONS}
+              onChange={(nextLevel) => {
+                setLevel(nextLevel);
+                setMessage("");
+              }}
+            />
+            <SelectMenu
+              ariaLabel="Destination deck"
+              value={status}
+              options={STATUS_OPTIONS}
+              onChange={(nextStatus) => {
+                setStatus(nextStatus);
+                setMessage("");
+              }}
+            />
+          </div>
+
+          <div className="level-summary">
+            <div className="level-summary-heading">
+              <span className="level-summary-badge">{level}</span>
+              <strong>{selectedWords.length} curated words</strong>
+            </div>
+
+            <p>{LEVEL_DESCRIPTIONS[level]}</p>
+          </div>
+
+          <div className="vocabulary-preview">
+            <div className="vocabulary-preview-heading">
+              <h3>Vocabulary preview</h3>
+              <span>{selectedWords.length} words</span>
+            </div>
+
+            <ul className="vocabulary-preview-list">
+              {selectedWords.map((word, index) => (
+                <li key={`${level}-${word.german}-${index}`}>
+                  <div className="vocabulary-preview-copy">
+                    <strong>
+                      {word.article ? `${word.article} ` : ""}
+                      {word.german}
+                    </strong>
+
+                    <span>{word.translation}</span>
+                  </div>
+
+                  {word.plural && (
+                    <span className="vocabulary-preview-plural">
+                      {word.plural}
+                    </span>
+                  )}
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          <div className="core-panel-footer">
+            {message && (
+              <div className="notice" role="status">
+                {message}
+              </div>
+            )}
+
+            <button
+              className="btn secondary core-add-button"
+              type="button"
+              onClick={addVocabulary}
+            >
+              <PlusIcon />
+              <span>
+                Add all {level} words to {STATUS_LABELS[status]}
+              </span>
+            </button>
+          </div>
+        </div>
+      )}
     </section>
   );
 }

@@ -15,11 +15,11 @@ export default function FlashcardApp() {
 
   return (
     <main className="app-shell">
-      <AppHeader 
+      <AppHeader
         onExport={flashcards.exportDeck}
         onImport={flashcards.importDeck}
         onReset={flashcards.resetCards}
-        onClear={flashcards.clearCards} 
+        onClear={flashcards.clearCards}
       />
 
       <div className="dashboard-grid">
@@ -29,6 +29,9 @@ export default function FlashcardApp() {
           progress={flashcards.progress}
           onReview={flashcards.reviewCard}
           onMove={flashcards.moveCard}
+          onUpdate={flashcards.updateCard}
+          onDelete={flashcards.deleteCard}
+          onRestartActive={flashcards.restartActiveLearning}
           onOpenFuture={() => setActiveTab("future")}
         />
 
@@ -40,6 +43,7 @@ export default function FlashcardApp() {
           onUpdate={flashcards.updateCard}
           onMove={flashcards.moveCard}
           onDelete={flashcards.deleteCard}
+          onDeleteLearned={flashcards.deleteLearnedCards}
         />
 
         <div className="secondary-panels">

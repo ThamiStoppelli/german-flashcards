@@ -1,9 +1,10 @@
 "use client";
 
 import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from "react";
-import { EMPTY_CARD_DRAFT, SHORT_STATUS_LABELS, STATUS_LABELS } from "../constants";
+import { SHORT_STATUS_LABELS, STATUS_LABELS } from "../constants";
 import type { CardDraft, CardStatus, Flashcard } from "../types";
-import { CardFields } from "./CardFields";
+import { ConfirmModal } from "./ConfirmModal";
+import { EditCardModal } from "./EditCardModal";
 
 type DeckCardProps = {
   card: Flashcard;
@@ -89,14 +90,15 @@ const STATUS_ICONS: Record<CardStatus, ReactNode> = {
 
 export function DeckCard({ card, onUpdate, onMove, onDelete }: DeckCardProps) {
   const [isEditing, setIsEditing] = useState(false);
+  const [isConfirmingDelete, setIsConfirmingDelete] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const menuButtonRef = useRef<HTMLButtonElement>(null);
   const menuRef = useRef<HTMLDivElement>(null);
   const [menuStyle, setMenuStyle] = useState<CSSProperties>({});
-  const [draft, setDraft] = useState<CardDraft>(EMPTY_CARD_DRAFT);
   const availableStatuses = (
     Object.keys(STATUS_LABELS) as CardStatus[]
   ).filter((status) => status !== card.status);
+
 
   useEffect(() => {
     if (!isMenuOpen) {
@@ -169,24 +171,12 @@ export function DeckCard({ card, onUpdate, onMove, onDelete }: DeckCardProps) {
   }
 
   function startEditing() {
-    setDraft({
-      german: card.german,
-      translation: card.translation,
-      article: card.article ?? "",
-      plural: card.plural ?? "",
-      example: card.example ?? "",
-      level: card.level,
-      status: card.status,
-    });
     setIsMenuOpen(false);
     setIsEditing(true);
   }
 
-  function saveEdit(event: React.FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    if (!draft.german.trim() || !draft.translation.trim()) return;
-
-    onUpdate(card.id, draft);
+  function saveEdit(id: string, draft: CardDraft) {
+    onUpdate(id, draft);
     setIsEditing(false);
   }
 
@@ -195,129 +185,133 @@ export function DeckCard({ card, onUpdate, onMove, onDelete }: DeckCardProps) {
     setIsMenuOpen(false);
   }
 
-  function remove() {
-    if (!window.confirm("Delete this card? This cannot be undone.")) return;
-    onDelete(card.id);
+  function requestDelete() {
     setIsMenuOpen(false);
+    setIsConfirmingDelete(true);
+  }
+
+  function confirmDelete() {
+    onDelete(card.id);
+    setIsConfirmingDelete(false);
   }
 
   return (
-    <article className={`word-row status-${card.status}`}>
-      {isEditing ? (
-        <form className="edit-form" onSubmit={saveEdit}>
-          <CardFields value={draft} onChange={setDraft} />
+    <>
+      <article className={`word-row status-${card.status}`}>
+          <>
+            <div className="word-main">
+              <div className="word-copy">
+                <strong>
+                  {card.article ? `${card.article} ` : ""}
+                  {card.german}
+                </strong>
 
-          <div className="word-actions">
-            <button className="btn" type="submit">
-              Save
-            </button>
+                <span>{card.translation}</span>
+              </div>
 
-            <button
-              className="btn secondary"
-              type="button"
-              onClick={() => setIsEditing(false)}
-            >
-              Cancel
-            </button>
-          </div>
-        </form>
-      ) : (
-        <>
-          <div className="word-main">
-            <div className="word-copy">
-              <strong>
-                {card.article ? `${card.article} ` : ""}
-                {card.german}
-              </strong>
-
-              <span>{card.translation}</span>
-            </div>
-
-            <div className="menu-wrap">
-              <button
-                ref={menuButtonRef}
-                className="icon-button"
-                type="button"
-                aria-label={`More actions for ${card.german}`}
-                aria-expanded={isMenuOpen}
-                aria-haspopup="menu"
-                title="Card actions"
-                onClick={toggleMenu}
-              >
-                ⋯
-              </button>
-
-              {isMenuOpen && (
-                <div
-                  ref={menuRef}
-                  className="action-menu"
-                  role="menu"
-                  aria-label={`Actions for ${card.german}`}
-                  style={menuStyle}
+              <div className="menu-wrap">
+                <button
+                  ref={menuButtonRef}
+                  className="icon-button"
+                  type="button"
+                  aria-label={`More actions for ${card.german}`}
+                  aria-expanded={isMenuOpen}
+                  aria-haspopup="menu"
+                  title="Card actions"
+                  onClick={toggleMenu}
                 >
-                  <button
-                    role="menuitem"
-                    type="button"
-                    onClick={startEditing}
+                  ⋯
+                </button>
+
+                {isMenuOpen && (
+                  <div
+                    ref={menuRef}
+                    className="action-menu"
+                    role="menu"
+                    aria-label={`Actions for ${card.german}`}
+                    style={menuStyle}
                   >
-                    <EditIcon />
-                    <span>Edit card</span>
-                  </button>
-
-                  <div className="menu-divider" />
-
-                  <p className="action-menu-label">Change status</p>
-
-                  {availableStatuses.map((status) => (
                     <button
-                      key={status}
                       role="menuitem"
                       type="button"
-                      onClick={() => move(status)}
+                      onClick={startEditing}
                     >
-                      {STATUS_ICONS[status]}
-                      <span>{STATUS_LABELS[status]}</span>
+                      <EditIcon />
+                      <span>Edit card</span>
                     </button>
-                  ))}
 
-                  <div className="menu-divider" />
+                    <div className="menu-divider" />
 
-                  <button
-                    role="menuitem"
-                    type="button"
-                    className="menu-danger"
-                    onClick={remove}
-                  >
-                    <DeleteIcon />
-                    <span>Delete card</span>
-                  </button>
-                </div>
-              )}
+                    <p className="action-menu-label">Change status</p>
+
+                    {availableStatuses.map((status) => (
+                      <button
+                        key={status}
+                        role="menuitem"
+                        type="button"
+                        onClick={() => move(status)}
+                      >
+                        {STATUS_ICONS[status]}
+                        <span>{STATUS_LABELS[status]}</span>
+                      </button>
+                    ))}
+
+                    <div className="menu-divider" />
+
+                    <button
+                      role="menuitem"
+                      type="button"
+                      className="menu-danger"
+                      onClick={requestDelete}
+                    >
+                      <DeleteIcon />
+                      <span>Delete card</span>
+                    </button>
+                  </div>
+                )}
+              </div>
             </div>
-          </div>
 
-          {card.plural && (
-            <span className="word-detail">
-              Plural: {card.plural}
-            </span>
-          )}
+            {card.plural && (
+              <span className="word-detail">
+                Plural: {card.plural}
+              </span>
+            )}
 
-          {card.example && (
-            <span className="word-detail">
-              {card.example}
-            </span>
-          )}
+            {card.example && (
+              <span className="word-detail">
+                {card.example}
+              </span>
+            )}
 
-          <div className="word-meta">
-            <span className="pill">{card.level}</span>
-            <span className="pill">{card.source}</span>
+            <div className="word-meta">
+              <span className="pill">{card.level}</span>
+              <span className="pill">{card.source}</span>
 
-            <span className={`status-badge ${card.status}`}>
-              {SHORT_STATUS_LABELS[card.status]}
-            </span>
-          </div>
-        </>
+              <span className={`status-badge ${card.status}`}>
+                {SHORT_STATUS_LABELS[card.status]}
+              </span>
+            </div>
+          </>
+      </article>
+      
+      {isEditing && (
+        <EditCardModal
+          card={card}
+          onSave={saveEdit}
+          onCancel={() => setIsEditing(false)}
+        />
       )}
-    </article>
+
+      {isConfirmingDelete && (
+        <ConfirmModal
+          title="Delete card?"
+          description={`"${card.german}" will be permanently removed from your library.`}
+          confirmLabel="Delete card"
+          onConfirm={confirmDelete}
+          onCancel={() => setIsConfirmingDelete(false)}
+        />
+      )}
+    </>
   );
 }

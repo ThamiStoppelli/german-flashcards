@@ -1,7 +1,9 @@
 "use client";
 
-import { useState, type ReactNode } from "react";
-import type { CardStats, CardStatus, Flashcard } from "../types";
+import { useEffect, useState, type ReactNode } from "react";
+import type { CardDraft, CardStats, CardStatus, Flashcard } from "../types";
+import { ConfirmModal } from "./ConfirmModal";
+import { EditCardModal } from "./EditCardModal";
 
 type StudyPanelProps = {
   card?: Flashcard;
@@ -9,6 +11,9 @@ type StudyPanelProps = {
   progress: number;
   onReview: (id: string, quality: "again" | "good") => void;
   onMove: (id: string, status: CardStatus) => void;
+  onUpdate: (id: string, draft: CardDraft) => void;
+  onDelete: (id: string) => void;
+  onRestartActive: () => void;
   onOpenFuture: () => void;
 };
 
@@ -78,15 +83,54 @@ function LaterIcon() {
   );
 }
 
+function EditIcon() {
+  return (
+    <StudyIcon>
+      <path d="M12 20h9" />
+      <path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L8 18l-4 1 1-4Z" />
+    </StudyIcon>
+  );
+}
+
+function DeleteIcon() {
+  return (
+    <StudyIcon>
+      <path d="M4 7h16" />
+      <path d="M10 11v5" />
+      <path d="M14 11v5" />
+      <path d="m6 7 1 13h10l1-13" />
+      <path d="M9 7V4h6v3" />
+    </StudyIcon>
+  );
+}
+
+function RestartIcon() {
+  return (
+    <StudyIcon>
+      <path d="M4 10a8 8 0 1 1 2 7" />
+      <path d="M4 4v6h6" />
+    </StudyIcon>
+  );
+}
+
 export function StudyPanel({
   card,
   stats,
   progress,
   onReview,
   onMove,
+  onUpdate,
+  onDelete,
+  onRestartActive,
   onOpenFuture,
 }: StudyPanelProps) {
   const [showAnswer, setShowAnswer] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+  const [isConfirmingDelete, setIsConfirmingDelete] = useState(false);
+
+  useEffect(() => {
+    setShowAnswer(false);
+  }, [card?.id]);
 
   function handleReview(quality: "again" | "good") {
     if (!card) return;
@@ -97,6 +141,19 @@ export function StudyPanel({
   function handleMove(status: CardStatus) {
     if (!card) return;
     onMove(card.id, status);
+    setShowAnswer(false);
+  }
+
+  function saveEdit(id: string, draft: CardDraft) {
+    onUpdate(id, draft);
+    setIsEditing(false);
+  }
+
+  function confirmDelete() {
+    if (!card) return;
+
+    onDelete(card.id);
+    setIsConfirmingDelete(false);
     setShowAnswer(false);
   }
 
@@ -125,6 +182,25 @@ export function StudyPanel({
       {card ? (
         <>
           <div className="flashcard">
+            <div className="study-card-toolbar">
+              <button
+                className="study-card-tool"
+                type="button"
+                onClick={() => setIsEditing(true)}
+              >
+                <EditIcon />
+                <span>Edit</span>
+              </button>
+
+              <button
+                className="study-card-tool danger-tool"
+                type="button"
+                onClick={() => setIsConfirmingDelete(true)}
+              >
+                <DeleteIcon />
+                <span>Delete</span>
+              </button>
+            </div>
             <div>
               <small>{card.level} · {card.tags.join(", ") || "vocabulary"}</small>
               <h2>{card.article ? `${card.article} ` : ""}{card.german}</h2>
@@ -189,12 +265,54 @@ export function StudyPanel({
         <div className="flashcard empty-study">
           <div>
             <h2>You are all caught up</h2>
-            <p>Move words from Future Learning into Active when you are ready.</p>
-            <button className="btn secondary" type="button" onClick={onOpenFuture}>
-              Review future words
-            </button>
+            <p>
+              Restart your active cards for another round or review words
+              waiting in Future learning.
+            </p>
+
+            <div className="empty-study-actions">
+              {stats.active > 0 && (
+                <button
+                  className="btn compact-button"
+                  type="button"
+                  onClick={onRestartActive}
+                >
+                  <RestartIcon />
+                  <span>Shuffle and restart Active</span>
+                </button>
+              )}
+
+              {stats.future > 0 && (
+                <button
+                  className="btn secondary compact-button"
+                  type="button"
+                  onClick={onOpenFuture}
+                >
+                  <LaterIcon />
+                  <span>Review future words</span>
+                </button>
+              )}
+            </div>
           </div>
         </div>
+      )}
+
+      {card && isEditing && (
+        <EditCardModal
+          card={card}
+          onSave={saveEdit}
+          onCancel={() => setIsEditing(false)}
+        />
+      )}
+
+      {card && isConfirmingDelete && (
+        <ConfirmModal
+          title="Delete card?"
+          description={`"${card.german}" will be permanently removed from your library.`}
+          confirmLabel="Delete card"
+          onConfirm={confirmDelete}
+          onCancel={() => setIsConfirmingDelete(false)}
+        />
       )}
     </section>
   );

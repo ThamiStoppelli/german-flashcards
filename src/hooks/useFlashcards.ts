@@ -15,10 +15,24 @@ import type { CandidateCard, CardDraft, CardStatus, Flashcard } from "../types";
 export function useFlashcards() {
   const [cards, setCards] = useState<Flashcard[]>([]);
   const [loaded, setLoaded] = useState(false);
-  const [currentId, setCurrentId] = useState<string | null>(null);
+  const [studyQueue, setStudyQueue] = useState<string[]>([]);
 
   useEffect(() => {
-    setCards(loadCards(STORAGE_KEY, seedCards));
+    const loadedCards = loadCards(STORAGE_KEY, seedCards);
+    const now = Date.now();
+
+    setCards(loadedCards);
+    setStudyQueue(
+      shuffle(
+        loadedCards
+          .filter(
+            (card) =>
+              card.status === "active" &&
+              new Date(card.nextReviewAt).getTime() <= now,
+          )
+          .map((card) => card.id),
+      ),
+    );
     setLoaded(true);
   }, []);
 
@@ -26,22 +40,15 @@ export function useFlashcards() {
     if (loaded) saveCards(STORAGE_KEY, cards);
   }, [cards, loaded]);
 
-  const dueCards = useMemo(() => {
-    const now = Date.now();
-    return shuffle(
-      cards.filter(
-        (card) => card.status === "active" && new Date(card.nextReviewAt).getTime() <= now,
-      ),
-    );
-  }, [cards]);
-
   const currentCard = useMemo(() => {
-    if (currentId) {
-      return cards.find((card) => card.id === currentId) ?? dueCards[0];
+    const currentId = studyQueue[0];
+
+    if (!currentId) {
+      return undefined;
     }
 
-    return dueCards[0];
-  }, [cards, currentId, dueCards]);
+    return cards.find((card) => card.id === currentId);
+  }, [cards, studyQueue]);
 
   const stats = useMemo(
     () => ({
@@ -52,17 +59,43 @@ export function useFlashcards() {
     [cards],
   );
 
-  const progress = cards.length ? Math.round((stats.learned / cards.length) * 100) : 0;
+  const startedCards = stats.active + stats.learned;
 
-  function addCard(card: CandidateCard, source: Flashcard["source"], status: CardStatus) {
-    setCards((previous) => [createCard(card, source, status), ...previous]);
+  const progress = startedCards
+    ? Math.round((stats.learned / startedCards) * 100)
+    : 0;
+
+  function addCard(
+    card: CandidateCard,
+    source: Flashcard["source"],
+    status: CardStatus,
+  ) {
+    const createdCard = createCard(card, source, status);
+
+    setCards((previous) => [createdCard, ...previous]);
+
+    if (status === "active") {
+      setStudyQueue((previous) => [createdCard.id, ...previous]);
+    }
   }
 
-  function addCards(newCards: CandidateCard[], source: Flashcard["source"], status: CardStatus) {
-    setCards((previous) => [
-      ...newCards.map((card) => createCard(card, source, status)),
-      ...previous,
-    ]);
+  function addCards(
+    newCards: CandidateCard[],
+    source: Flashcard["source"],
+    status: CardStatus,
+  ) {
+    const createdCards = newCards.map((card) =>
+      createCard(card, source, status),
+    );
+
+    setCards((previous) => [...createdCards, ...previous]);
+
+    if (status === "active") {
+      setStudyQueue((previous) => [
+        ...shuffle(createdCards.map((card) => card.id)),
+        ...previous,
+      ]);
+    }
   }
 
   function updateCard(id: string, draft: CardDraft) {
@@ -82,13 +115,24 @@ export function useFlashcards() {
           : card,
       ),
     );
+
+    if (draft.status !== "active") {
+      setStudyQueue((previous) =>
+        previous.filter((cardId) => cardId !== id),
+      );
+    }
   }
 
   function moveCard(id: string, status: CardStatus) {
     setCards((previous) =>
-      previous.map((card) => (card.id === id ? { ...card, status } : card)),
+      previous.map((card) =>
+        card.id === id ? { ...card, status } : card,
+      ),
     );
-    setCurrentId(null);
+
+    setStudyQueue((previous) =>
+      previous.filter((cardId) => cardId !== id),
+    );
   }
 
   function reviewCard(id: string, quality: "again" | "good") {
@@ -107,12 +151,45 @@ export function useFlashcards() {
           : card,
       ),
     );
-    setCurrentId(null);
+    setStudyQueue((previous) =>
+      previous.filter((cardId) => cardId !== id),
+    );
   }
 
   function deleteCard(id: string) {
-    setCards((previous) => previous.filter((card) => card.id !== id));
-    setCurrentId(null);
+    setCards((previous) =>
+      previous.filter((card) => card.id !== id),
+    );
+
+    setStudyQueue((previous) =>
+      previous.filter((cardId) => cardId !== id),
+    );
+  }
+
+  function deleteLearnedCards() {
+    setCards((previous) =>
+      previous.filter((card) => card.status !== "learned"),
+    );
+  }
+
+  function restartActiveLearning() {
+    const now = new Date().toISOString();
+    const activeIds = cards
+      .filter((card) => card.status === "active")
+      .map((card) => card.id);
+
+    setCards((previous) =>
+      previous.map((card) =>
+        card.status === "active"
+          ? {
+              ...card,
+              nextReviewAt: now,
+            }
+          : card,
+      ),
+    );
+
+    setStudyQueue(shuffle(activeIds));
   }
 
   function exportDeck() {
@@ -127,7 +204,13 @@ export function useFlashcards() {
 
     if (mode === "replace") {
       setCards(importedCards);
-      setCurrentId(null);
+      setStudyQueue(
+        shuffle(
+          importedCards
+            .filter((card) => card.status === "active")
+            .map((card) => card.id),
+        ),
+      );
 
       return {
         imported: importedCards.length,
@@ -158,7 +241,14 @@ export function useFlashcards() {
     });
 
     setCards((previous) => [...uniqueCards, ...previous]);
-    setCurrentId(null);
+    setStudyQueue((previous) => [
+      ...shuffle(
+        uniqueCards
+          .filter((card) => card.status === "active")
+          .map((card) => card.id),
+      ),
+      ...previous,
+    ]);
 
     return {
       imported: uniqueCards.length,
@@ -168,12 +258,18 @@ export function useFlashcards() {
 
   function resetCards() {
     setCards(seedCards);
-    setCurrentId(null);
+    setStudyQueue(
+      shuffle(
+        seedCards
+          .filter((card) => card.status === "active")
+          .map((card) => card.id),
+      ),
+    );
   }
 
   function clearCards() {
     setCards([]);
-    setCurrentId(null);
+    setStudyQueue([]);
   }
 
   return {
@@ -189,6 +285,8 @@ export function useFlashcards() {
     moveCard,
     reviewCard,
     deleteCard,
+    deleteLearnedCards,
+  restartActiveLearning,
     resetCards,
     clearCards,
   };

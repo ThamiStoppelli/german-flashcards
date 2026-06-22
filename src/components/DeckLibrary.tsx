@@ -1,6 +1,10 @@
+"use client";
+
+import { useState } from "react";
 import { STATUS_LABELS } from "../constants";
 import type { CardDraft, CardStats, CardStatus, Flashcard } from "../types";
 import { DeckCard } from "./DeckCard";
+import { ConfirmModal } from "./ConfirmModal";
 
 type DeckLibraryProps = {
   cards: Flashcard[];
@@ -10,6 +14,7 @@ type DeckLibraryProps = {
   onUpdate: (id: string, draft: CardDraft) => void;
   onMove: (id: string, status: CardStatus) => void;
   onDelete: (id: string) => void;
+  onDeleteLearned: () => void;
 };
 
 export function DeckLibrary({
@@ -20,7 +25,9 @@ export function DeckLibrary({
   onUpdate,
   onMove,
   onDelete,
+  onDeleteLearned,
 }: DeckLibraryProps) {
+  const [isConfirmingClear, setIsConfirmingClear] = useState(false);
   const visibleCards = cards.filter((card) => card.status === activeTab);
 
   return (
@@ -43,6 +50,18 @@ export function DeckLibrary({
         ))}
       </div>
 
+      {activeTab === "learned" && stats.learned > 0 && (
+        <div className="deck-toolbar">
+          <button
+            className="btn danger compact-button"
+            type="button"
+            onClick={() => setIsConfirmingClear(true)}
+          >
+            Delete all learned cards
+          </button>
+        </div>
+      )}
+
       <div className="word-list">
         {visibleCards.map((card) => (
           <DeckCard
@@ -57,6 +76,20 @@ export function DeckLibrary({
           <div className="empty-list"><p>No cards in this deck yet.</p></div>
         )}
       </div>
+
+      {isConfirmingClear && (
+        <ConfirmModal
+          title="Delete all learned cards?"
+          description={`${stats.learned} learned card${stats.learned === 1 ? "" : "s"
+            } will be permanently removed. Active and Future cards will not be affected.`}
+          confirmLabel="Delete learned cards"
+          onConfirm={() => {
+            onDeleteLearned();
+            setIsConfirmingClear(false);
+          }}
+          onCancel={() => setIsConfirmingClear(false)}
+        />
+      )}
     </section>
   );
 }
