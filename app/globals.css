@@ -1091,10 +1091,6 @@ textarea {
   flex: 0 0 15px;
 }
 
-/* .flashcard {
-  position: relative;
-} */
-
 .study-card-toolbar {
   position: absolute;
   top: 14px;
@@ -1134,12 +1130,6 @@ textarea {
   flex-wrap: wrap;
 }
 
-.deck-toolbar {
-  display: flex;
-  justify-content: flex-end;
-  margin: -3px 0 10px;
-}
-
 .core-panel-header {
   display: flex;
   align-items: flex-start;
@@ -1175,6 +1165,45 @@ textarea {
   flex: 1;
   flex-direction: column;
   min-height: 0;
+}
+
+.clear-learned-action {
+  width: 100%;
+  min-height: 46px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 10px;
+  flex: 0 0 auto;
+  padding: 12px 14px;
+  border: 1px solid rgba(190, 65, 65, .24);
+  border-radius: 14px;
+  background: transparent;
+  color: var(--danger);
+  font: inherit;
+  font-size: 13px;
+  font-weight: 500;
+  text-align: left;
+  cursor: pointer;
+  transition:
+    background .16s ease,
+    border-color .16s ease;
+}
+
+.clear-learned-action:hover {
+  border-color: rgba(190, 65, 65, .42);
+  background: rgba(190, 65, 65, .05);
+}
+
+.clear-learned-action:focus-visible {
+  outline: 3px solid rgba(190, 65, 65, .16);
+  outline-offset: 2px;
+}
+
+.clear-learned-icon {
+  width: 16px;
+  height: 16px;
+  flex: 0 0 16px;
 }
 
 @media (max-width: 840px) {

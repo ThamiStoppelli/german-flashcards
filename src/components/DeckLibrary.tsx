@@ -6,6 +6,27 @@ import type { CardDraft, CardStats, CardStatus, Flashcard } from "../types";
 import { DeckCard } from "./DeckCard";
 import { ConfirmModal } from "./ConfirmModal";
 
+function DeleteIcon() {
+  return (
+    <svg
+      aria-hidden="true"
+      className="clear-learned-icon"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.8"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M4 7h16" />
+      <path d="M10 11v5" />
+      <path d="M14 11v5" />
+      <path d="m6 7 1 13h10l1-13" />
+      <path d="M9 7V4h6v3" />
+    </svg>
+  );
+}
+
 type DeckLibraryProps = {
   cards: Flashcard[];
   stats: CardStats;
@@ -50,18 +71,6 @@ export function DeckLibrary({
         ))}
       </div>
 
-      {activeTab === "learned" && stats.learned > 0 && (
-        <div className="deck-toolbar">
-          <button
-            className="btn danger compact-button"
-            type="button"
-            onClick={() => setIsConfirmingClear(true)}
-          >
-            Delete all learned cards
-          </button>
-        </div>
-      )}
-
       <div className="word-list">
         {visibleCards.map((card) => (
           <DeckCard
@@ -72,8 +81,22 @@ export function DeckLibrary({
             onDelete={onDelete}
           />
         ))}
+
         {!visibleCards.length && (
-          <div className="empty-list"><p>No cards in this deck yet.</p></div>
+          <div className="empty-list">
+            <p>No cards in this deck yet.</p>
+          </div>
+        )}
+
+        {activeTab === "learned" && stats.learned > 0 && (
+          <button
+            className="clear-learned-action"
+            type="button"
+            onClick={() => setIsConfirmingClear(true)}
+          >
+            <DeleteIcon />
+            <span>Delete all learned cards</span>
+          </button>
         )}
       </div>
 
