@@ -1,5 +1,5 @@
 "use client";
-import { useRef, useState, type ChangeEvent, type ReactNode } from "react";
+import { useEffect, useRef, useState, type ChangeEvent, type ReactNode } from "react";
 import { ImportDeckModal } from "./ImportDeckModal";
 
 type ImportResult = {
@@ -79,6 +79,16 @@ function ClearIcon() {
   );
 }
 
+function MoreIcon() {
+  return (
+    <HeaderIcon>
+      <circle cx="5" cy="12" r="1" fill="currentColor" stroke="none" />
+      <circle cx="12" cy="12" r="1" fill="currentColor" stroke="none" />
+      <circle cx="19" cy="12" r="1" fill="currentColor" stroke="none" />
+    </HeaderIcon>
+  );
+}
+
 export function AppHeader({
   onExport,
   onImport,
@@ -89,6 +99,33 @@ export function AppHeader({
   const [message, setMessage] = useState("");
   const [pendingFile, setPendingFile] = useState<File | null>(null);
   const [isImporting, setIsImporting] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const mobileMenuRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    function handlePointerDown(event: PointerEvent) {
+      if (
+        mobileMenuRef.current &&
+        !mobileMenuRef.current.contains(event.target as Node)
+      ) {
+        setIsMobileMenuOpen(false);
+      }
+    }
+
+    function handleKeyDown(event: KeyboardEvent) {
+      if (event.key === "Escape") {
+        setIsMobileMenuOpen(false);
+      }
+    }
+
+    document.addEventListener("pointerdown", handlePointerDown);
+    document.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      document.removeEventListener("pointerdown", handlePointerDown);
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, []);
 
   function handleImport(
     event: ChangeEvent<HTMLInputElement>,
@@ -101,6 +138,7 @@ export function AppHeader({
 
     setPendingFile(file);
     setMessage("");
+    setIsMobileMenuOpen(false);
     event.target.value = "";
   }
 
@@ -132,6 +170,26 @@ export function AppHeader({
     }
   }
 
+  function handleExport() {
+    onExport();
+    setIsMobileMenuOpen(false);
+  }
+
+  function handleReset() {
+    onReset();
+    setIsMobileMenuOpen(false);
+  }
+
+  function handleClear() {
+    onClear();
+    setIsMobileMenuOpen(false);
+  }
+
+  function handleImportClick() {
+    fileInputRef.current?.click();
+    setIsMobileMenuOpen(false);
+  }
+
   return (
     <header className="header">
       <div className="logo">
@@ -151,31 +209,100 @@ export function AppHeader({
           onChange={handleImport}
         />
 
-        <button
-          className="btn secondary"
-          type="button"
-          onClick={() => fileInputRef.current?.click()}
-        >
-          <ImportIcon />
-          <span>Import deck</span>
-        </button>
+        <div className="desktop-header-actions">
+          <button
+            className="btn secondary"
+            type="button"
+            onClick={handleImportClick}
+          >
+            <ImportIcon />
+            <span>Import deck</span>
+          </button>
+          <button
+            className="btn secondary"
+            type="button"
+            onClick={handleExport}
+          >
+            <ExportIcon />
+            <span>Export deck</span>
+          </button>
+          <button 
+            className="btn secondary" type="button" 
+            onClick={handleReset}
+          >
+            <ResetIcon />
+            <span>Reset demo</span>
+          </button>
+          <button 
+            className="btn danger" type="button" 
+            onClick={handleClear}
+          >
+            <ClearIcon />
+            <span>Clear all</span>
+          </button>
+        </div>
 
-        <button
-          className="btn secondary"
-          type="button"
-          onClick={onExport}
-        >
-          <ExportIcon />
-          <span>Export deck</span>
-        </button>
-        <button className="btn secondary" type="button" onClick={onReset}>
-          <ResetIcon />
-          <span>Reset demo</span>
-        </button>
-        <button className="btn danger" type="button" onClick={onClear}>
-          <ClearIcon />
-          <span>Clear all</span>
-        </button>
+        <div className="mobile-header-menu" ref={mobileMenuRef}>
+          <button
+            className="mobile-header-menu-button"
+            type="button"
+            aria-label="Open application menu"
+            aria-expanded={isMobileMenuOpen}
+            aria-haspopup="menu"
+            onClick={() => {
+              setIsMobileMenuOpen((current) => !current);
+            }}
+          >
+            <MoreIcon />
+          </button>
+
+          {isMobileMenuOpen && (
+            <div
+              className="header-action-menu"
+              role="menu"
+              aria-label="Application actions"
+            >
+              <button
+                type="button"
+                role="menuitem"
+                onClick={handleImportClick}
+              >
+                <ImportIcon />
+                <span>Import deck</span>
+              </button>
+
+              <button
+                type="button"
+                role="menuitem"
+                onClick={handleExport}
+              >
+                <ExportIcon />
+                <span>Export deck</span>
+              </button>
+
+              <button
+                type="button"
+                role="menuitem"
+                onClick={handleReset}
+              >
+                <ResetIcon />
+                <span>Reset demo</span>
+              </button>
+
+              <div className="header-action-menu-divider" />
+
+              <button
+                className="header-menu-danger"
+                type="button"
+                role="menuitem"
+                onClick={handleClear}
+              >
+                <ClearIcon />
+                <span>Clear all</span>
+              </button>
+            </div>
+          )}
+        </div> 
 
         {message && (
           <div className="header-notice" role="status">

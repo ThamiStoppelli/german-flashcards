@@ -131,6 +131,93 @@ textarea:focus-visible {
   line-height: 1.4;
 }
 
+.desktop-header-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.mobile-header-menu {
+  display: none;
+  position: relative;
+}
+
+.mobile-header-menu-button {
+  width: 42px;
+  height: 42px;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border: 1px solid var(--line);
+  border-radius: 13px;
+  background: white;
+  color: var(--ink);
+  box-shadow: 0 5px 16px rgba(23, 32, 51, .06);
+  cursor: pointer;
+}
+
+.mobile-header-menu-button:hover {
+  background: #f7f3ed;
+}
+
+.mobile-header-menu-button .header-action-icon {
+  width: 20px;
+  height: 20px;
+  flex-basis: 20px;
+}
+
+.header-action-menu {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  z-index: 100;
+  width: 210px;
+  padding: 6px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: white;
+  box-shadow: 0 16px 40px rgba(23, 32, 51, .16);
+}
+
+.header-action-menu button {
+  width: 100%;
+  min-height: 42px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px;
+  border: 0;
+  border-radius: 9px;
+  background: transparent;
+  color: var(--ink);
+  font: inherit;
+  font-size: 13px;
+  text-align: left;
+  cursor: pointer;
+}
+
+.header-action-menu button:hover {
+  background: #f5f2ed;
+}
+
+.header-action-menu .header-action-icon {
+  width: 17px;
+  height: 17px;
+  flex: 0 0 17px;
+}
+
+.header-action-menu-divider {
+  height: 1px;
+  margin: 5px 8px;
+  background: var(--line);
+}
+
+.header-action-menu .header-menu-danger {
+  color: var(--danger);
+}
+
 .modal-backdrop {
   position: fixed;
   inset: 0;
@@ -1250,16 +1337,29 @@ textarea {
   }
 
   .header {
-    align-items: flex-start;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 16px;
   }
 
   .header-actions {
-    gap: 7px;
+    flex: 0 0 auto;
+    gap: 0;
+  }
+
+  .desktop-header-actions {
+    display: none;
+  }
+
+  .mobile-header-menu {
+    display: block;
   }
 
   .header-notice {
-    left: 0;
-    right: 0;
+    position: fixed;
+    left: 12px;
+    right: 12px;
+    top: 76px;
     max-width: none;
   }
 
@@ -1269,8 +1369,20 @@ textarea {
     font-size: 13px;
   }
 
+  .logo {
+    min-width: 0;
+    gap: 10px;
+  }
+
+  .logo-mark {
+    width: 44px;
+    height: 44px;
+    flex: 0 0 44px;
+  }
+
   .logo small {
-    max-width: 180px;
+    max-width: none;
+    font-size: 13px;
   }
 
   .study-panel,
