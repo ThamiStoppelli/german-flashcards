@@ -150,21 +150,35 @@ export function DeckCard({ card, onUpdate, onMove, onDelete }: DeckCardProps) {
 
     const button = menuButtonRef.current;
 
-    if (!button || window.innerWidth <= 560) {
+    if (!button) {
       setMenuStyle({});
       setIsMenuOpen(true);
       return;
     }
 
     const rect = button.getBoundingClientRect();
-    const estimatedMenuHeight = 230;
+    const menuWidth = 215;
+    const estimatedMenuHeight = 245;
+    const viewportPadding = 12;
+
+    const left = Math.min(
+      Math.max(viewportPadding, rect.right - menuWidth),
+      window.innerWidth - menuWidth - viewportPadding,
+    );
+
     const spaceBelow = window.innerHeight - rect.bottom;
     const openUpward = spaceBelow < estimatedMenuHeight;
 
+    const top = openUpward
+      ? Math.max(viewportPadding, rect.top - estimatedMenuHeight - 8)
+      : Math.min(
+        rect.bottom + 8,
+        window.innerHeight - estimatedMenuHeight - viewportPadding,
+      );
+
     setMenuStyle({
-      top: openUpward ? rect.top - 8 : rect.bottom + 8,
-      right: window.innerWidth - rect.right,
-      transform: openUpward ? "translateY(-100%)" : undefined,
+      top,
+      left,
     });
 
     setIsMenuOpen(true);
@@ -198,103 +212,103 @@ export function DeckCard({ card, onUpdate, onMove, onDelete }: DeckCardProps) {
   return (
     <>
       <article className={`word-row status-${card.status}`}>
-          <>
-            <div className="word-main">
-              <div className="word-copy">
-                <strong>
-                  {card.article ? `${card.article} ` : ""}
-                  {card.german}
-                </strong>
+        <>
+          <div className="word-main">
+            <div className="word-copy">
+              <strong>
+                {card.article ? `${card.article} ` : ""}
+                {card.german}
+              </strong>
 
-                <span>{card.translation}</span>
-              </div>
+              <span>{card.translation}</span>
+            </div>
 
-              <div className="menu-wrap">
-                <button
-                  ref={menuButtonRef}
-                  className="icon-button"
-                  type="button"
-                  aria-label={`More actions for ${card.german}`}
-                  aria-expanded={isMenuOpen}
-                  aria-haspopup="menu"
-                  title="Card actions"
-                  onClick={toggleMenu}
+            <div className="menu-wrap">
+              <button
+                ref={menuButtonRef}
+                className="icon-button"
+                type="button"
+                aria-label={`More actions for ${card.german}`}
+                aria-expanded={isMenuOpen}
+                aria-haspopup="menu"
+                title="Card actions"
+                onClick={toggleMenu}
+              >
+                ⋯
+              </button>
+
+              {isMenuOpen && (
+                <div
+                  ref={menuRef}
+                  className="action-menu"
+                  role="menu"
+                  aria-label={`Actions for ${card.german}`}
+                  style={menuStyle}
                 >
-                  ⋯
-                </button>
-
-                {isMenuOpen && (
-                  <div
-                    ref={menuRef}
-                    className="action-menu"
-                    role="menu"
-                    aria-label={`Actions for ${card.german}`}
-                    style={menuStyle}
+                  <button
+                    role="menuitem"
+                    type="button"
+                    onClick={startEditing}
                   >
+                    <EditIcon />
+                    <span>Edit card</span>
+                  </button>
+
+                  <div className="menu-divider" />
+
+                  <p className="action-menu-label">Change status</p>
+
+                  {availableStatuses.map((status) => (
                     <button
+                      key={status}
                       role="menuitem"
                       type="button"
-                      onClick={startEditing}
+                      onClick={() => move(status)}
                     >
-                      <EditIcon />
-                      <span>Edit card</span>
+                      {STATUS_ICONS[status]}
+                      <span>{STATUS_LABELS[status]}</span>
                     </button>
+                  ))}
 
-                    <div className="menu-divider" />
+                  <div className="menu-divider" />
 
-                    <p className="action-menu-label">Change status</p>
-
-                    {availableStatuses.map((status) => (
-                      <button
-                        key={status}
-                        role="menuitem"
-                        type="button"
-                        onClick={() => move(status)}
-                      >
-                        {STATUS_ICONS[status]}
-                        <span>{STATUS_LABELS[status]}</span>
-                      </button>
-                    ))}
-
-                    <div className="menu-divider" />
-
-                    <button
-                      role="menuitem"
-                      type="button"
-                      className="menu-danger"
-                      onClick={requestDelete}
-                    >
-                      <DeleteIcon />
-                      <span>Delete card</span>
-                    </button>
-                  </div>
-                )}
-              </div>
+                  <button
+                    role="menuitem"
+                    type="button"
+                    className="menu-danger"
+                    onClick={requestDelete}
+                  >
+                    <DeleteIcon />
+                    <span>Delete card</span>
+                  </button>
+                </div>
+              )}
             </div>
+          </div>
 
-            {card.plural && (
-              <span className="word-detail">
-                Plural: {card.plural}
-              </span>
-            )}
+          {card.plural && (
+            <span className="word-detail">
+              Plural: {card.plural}
+            </span>
+          )}
 
-            {card.example && (
-              <span className="word-detail">
-                {card.example}
-              </span>
-            )}
+          {card.example && (
+            <span className="word-detail">
+              {card.example}
+            </span>
+          )}
 
-            <div className="word-meta">
-              <span className="pill">{card.level}</span>
-              <span className="pill">{card.source}</span>
+          <div className="word-meta">
+            <span className="pill">{card.level}</span>
+            <span className="pill">{card.source}</span>
 
-              <span className={`status-badge ${card.status}`}>
-                {SHORT_STATUS_LABELS[card.status]}
-              </span>
-            </div>
-          </>
+            <span className={`status-badge ${card.status}`}>
+              {SHORT_STATUS_LABELS[card.status]}
+            </span>
+          </div>
+        </>
       </article>
-      
+
       {isEditing && (
         <EditCardModal
           card={card}

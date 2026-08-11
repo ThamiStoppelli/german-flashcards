@@ -11,7 +11,7 @@
   --danger: #a94242;
   --future: #825d25;
   --radius: 22px;
-  --shadow: 0 16px 45px rgba(23, 32, 51, .075);
+  --shadow: 0 16px 45px rgba(23, 32, 51, 0.075);
   --primary-panel-height: 500px;
 }
 
@@ -20,15 +20,32 @@
 }
 
 html {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: clip;
   scroll-behavior: smooth;
 }
 
 body {
+  width: 100%;
+  max-width: 100%;
   margin: 0;
-  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  overflow-x: clip;
+  font-family:
+    Inter,
+    ui-sans-serif,
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    sans-serif;
   color: var(--ink);
   background:
-    radial-gradient(circle at top left, rgba(199, 125, 69, .13), transparent 28rem),
+    radial-gradient(
+      circle at top left,
+      rgba(199, 125, 69, 0.13),
+      transparent 28rem
+    ),
     linear-gradient(180deg, #fbf8f2 0%, var(--bg) 100%);
 }
 
@@ -45,7 +62,7 @@ button {
 button:focus-visible,
 input:focus-visible,
 textarea:focus-visible {
-  outline: 3px solid rgba(199, 125, 69, .35);
+  outline: 3px solid rgba(199, 125, 69, 0.35);
   outline-offset: 2px;
 }
 
@@ -70,7 +87,7 @@ textarea:focus-visible {
   align-items: center;
   gap: 12px;
   font-weight: 800;
-  letter-spacing: -.04em;
+  letter-spacing: -0.04em;
 }
 
 .logo-mark {
@@ -154,7 +171,7 @@ textarea:focus-visible {
   border-radius: 13px;
   background: white;
   color: var(--ink);
-  box-shadow: 0 5px 16px rgba(23, 32, 51, .06);
+  box-shadow: 0 5px 16px rgba(23, 32, 51, 0.06);
   cursor: pointer;
 }
 
@@ -178,7 +195,7 @@ textarea:focus-visible {
   border: 1px solid var(--line);
   border-radius: 14px;
   background: white;
-  box-shadow: 0 16px 40px rgba(23, 32, 51, .16);
+  box-shadow: 0 16px 40px rgba(23, 32, 51, 0.16);
 }
 
 .header-action-menu button {
@@ -225,7 +242,7 @@ textarea:focus-visible {
   display: grid;
   place-items: center;
   padding: 20px;
-  background: rgba(23, 32, 51, .48);
+  background: rgba(23, 32, 51, 0.48);
 }
 
 .import-modal {
@@ -234,7 +251,7 @@ textarea:focus-visible {
   border: 1px solid var(--line);
   border-radius: 22px;
   background: white;
-  box-shadow: 0 24px 70px rgba(23, 32, 51, .24);
+  box-shadow: 0 24px 70px rgba(23, 32, 51, 0.24);
 }
 
 .import-modal-heading {
@@ -317,7 +334,7 @@ textarea:focus-visible {
   background: #faf7f2;
 }
 
-.import-choice>span {
+.import-choice > span {
   display: grid;
   gap: 4px;
 }
@@ -353,15 +370,15 @@ textarea:focus-visible {
 }
 
 .card {
-  background: rgba(255, 255, 255, .88);
-  border: 1px solid rgba(231, 224, 214, .95);
+  background: rgba(255, 255, 255, 0.88);
+  border: 1px solid rgba(231, 224, 214, 0.95);
   border-radius: var(--radius);
   box-shadow: var(--shadow);
 }
 
 .dashboard-grid {
   display: grid;
-  grid-template-columns: 1.05fr .95fr;
+  grid-template-columns: 1.05fr 0.95fr;
   grid-template-areas:
     "study deck"
     "secondary secondary";
@@ -380,7 +397,7 @@ textarea:focus-visible {
 .secondary-panels {
   grid-area: secondary;
   display: grid;
-  grid-template-columns: 1.05fr .95fr;
+  grid-template-columns: 1.05fr 0.95fr;
   gap: 20px;
   align-items: stretch;
 }
@@ -390,7 +407,7 @@ textarea:focus-visible {
   min-width: 0;
 }
 
-.core-panel-slot>.core-panel {
+.core-panel-slot > .core-panel {
   position: absolute;
   inset: 0;
   overflow: hidden;
@@ -407,12 +424,12 @@ h1 {
   margin-bottom: 4px;
   font-size: 28px;
   line-height: 1.1;
-  letter-spacing: -.045em;
+  letter-spacing: -0.045em;
 }
 
 h2 {
   margin-bottom: 6px;
-  letter-spacing: -.035em;
+  letter-spacing: -0.035em;
 }
 
 p {
@@ -427,12 +444,15 @@ p {
   background: var(--brand);
   color: white;
   font-weight: 750;
-  transition: transform .15s ease, opacity .15s ease, box-shadow .15s ease;
+  transition:
+    transform 0.15s ease,
+    opacity 0.15s ease,
+    box-shadow 0.15s ease;
 }
 
 .btn:hover {
   transform: translateY(-1px);
-  box-shadow: 0 7px 18px rgba(34, 49, 80, .12);
+  box-shadow: 0 7px 18px rgba(34, 49, 80, 0.12);
 }
 
 .btn.secondary {
@@ -457,7 +477,7 @@ p {
 }
 
 .btn:disabled {
-  opacity: .5;
+  opacity: 0.5;
   cursor: not-allowed;
   transform: none;
 }
@@ -505,7 +525,7 @@ p {
   margin-bottom: 18px;
 }
 
-.progress-line>div {
+.progress-line > div {
   height: 100%;
   background: linear-gradient(90deg, var(--brand), var(--brand-2));
   width: var(--progress, 0%);
@@ -527,7 +547,7 @@ p {
 .flashcard h2 {
   font-size: clamp(38px, 6vw, 64px);
   margin: 0 0 12px;
-  letter-spacing: -.055em;
+  letter-spacing: -0.055em;
 }
 
 .flashcard small {
@@ -586,7 +606,7 @@ p {
   padding: 22px;
 }
 
-.section>p {
+.section > p {
   margin-bottom: 0;
   font-size: 14px;
 }
@@ -611,7 +631,7 @@ textarea {
 .input:focus,
 textarea:focus {
   border-color: var(--brand-2);
-  box-shadow: 0 0 0 4px rgba(199, 125, 69, .10);
+  box-shadow: 0 0 0 4px rgba(199, 125, 69, 0.1);
 }
 
 textarea {
@@ -731,7 +751,7 @@ textarea {
   border-radius: 11px;
 }
 
-.vocabulary-preview-list li+li {
+.vocabulary-preview-list li + li {
   border-top: 1px solid var(--line);
 }
 
@@ -832,12 +852,12 @@ textarea {
   margin-left: 4px;
   padding: 0 5px;
   border-radius: 999px;
-  background: rgba(101, 112, 131, .11);
+  background: rgba(101, 112, 131, 0.11);
   font-size: 11px;
 }
 
 .tab.active .tab-count {
-  background: rgba(255, 255, 255, .19);
+  background: rgba(255, 255, 255, 0.19);
 }
 
 .word-list {
@@ -971,7 +991,7 @@ textarea {
   background: white;
   border: 1px solid var(--line);
   border-radius: 13px;
-  box-shadow: 0 16px 40px rgba(23, 32, 51, .16);
+  box-shadow: 0 16px 40px rgba(23, 32, 51, 0.16);
 }
 
 .action-menu button {
@@ -1006,7 +1026,7 @@ textarea {
   color: var(--muted);
   font-size: 10px;
   font-weight: 800;
-  letter-spacing: .08em;
+  letter-spacing: 0.08em;
   line-height: 1.2;
   text-transform: uppercase;
 }
@@ -1038,14 +1058,14 @@ textarea {
 
 .select-menu-trigger[aria-expanded="true"] {
   border-color: var(--brand-2);
-  box-shadow: 0 0 0 4px rgba(199, 125, 69, .10);
+  box-shadow: 0 0 0 4px rgba(199, 125, 69, 0.1);
 }
 
 .select-menu-chevron {
   width: 17px;
   height: 17px;
   flex: 0 0 17px;
-  transition: transform .15s ease;
+  transition: transform 0.15s ease;
 }
 
 .select-menu-trigger[aria-expanded="true"] .select-menu-chevron {
@@ -1061,7 +1081,7 @@ textarea {
   border: 1px solid var(--line);
   border-radius: 14px;
   background: white;
-  box-shadow: 0 16px 40px rgba(23, 32, 51, .16);
+  box-shadow: 0 16px 40px rgba(23, 32, 51, 0.16);
 }
 
 .select-menu-option {
@@ -1134,7 +1154,7 @@ textarea {
   border: 1px solid var(--line);
   border-radius: 22px;
   background: white;
-  box-shadow: 0 24px 70px rgba(23, 32, 51, .24);
+  box-shadow: 0 24px 70px rgba(23, 32, 51, 0.24);
 }
 
 .edit-card-modal-form {
@@ -1149,7 +1169,7 @@ textarea {
   border: 1px solid var(--line);
   border-radius: 22px;
   background: white;
-  box-shadow: 0 24px 70px rgba(23, 32, 51, .24);
+  box-shadow: 0 24px 70px rgba(23, 32, 51, 0.24);
 }
 
 .modal-actions {
@@ -1240,7 +1260,7 @@ textarea {
 .core-toggle-icon {
   width: 16px;
   height: 16px;
-  transition: transform .18s ease;
+  transition: transform 0.18s ease;
 }
 
 .core-toggle-button[aria-expanded="true"] .core-toggle-icon {
@@ -1263,7 +1283,7 @@ textarea {
   gap: 10px;
   flex: 0 0 auto;
   padding: 12px 14px;
-  border: 1px solid rgba(190, 65, 65, .24);
+  border: 1px solid rgba(190, 65, 65, 0.24);
   border-radius: 14px;
   background: transparent;
   color: var(--danger);
@@ -1273,17 +1293,17 @@ textarea {
   text-align: left;
   cursor: pointer;
   transition:
-    background .16s ease,
-    border-color .16s ease;
+    background 0.16s ease,
+    border-color 0.16s ease;
 }
 
 .clear-learned-action:hover {
-  border-color: rgba(190, 65, 65, .42);
-  background: rgba(190, 65, 65, .05);
+  border-color: rgba(190, 65, 65, 0.42);
+  background: rgba(190, 65, 65, 0.05);
 }
 
 .clear-learned-action:focus-visible {
-  outline: 3px solid rgba(190, 65, 65, .16);
+  outline: 3px solid rgba(190, 65, 65, 0.16);
   outline-offset: 2px;
 }
 
@@ -1325,7 +1345,7 @@ textarea {
     position: static;
   }
 
-  .core-panel-slot>.core-panel {
+  .core-panel-slot > .core-panel {
     position: static;
     overflow: visible;
   }
@@ -1334,6 +1354,25 @@ textarea {
 @media (max-width: 560px) {
   .app-shell {
     padding: 15px 12px 38px;
+  }
+
+  .app-shell,
+  .header,
+  .dashboard-grid,
+  .study-panel,
+  .deck-panel,
+  .secondary-panels,
+  .core-panel,
+  .add-panel {
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .study-panel,
+  .deck-panel,
+  .core-panel,
+  .add-panel {
+    overflow: hidden;
   }
 
   .header {
@@ -1385,6 +1424,15 @@ textarea {
     font-size: 13px;
   }
 
+  .logo > div:last-child > div {
+    font-size: 17px;
+    line-height: 1.15;
+  }
+
+  .header-action-menu {
+    width: min(230px, calc(100vw - 24px));
+  }
+
   .study-panel,
   .section {
     padding: 17px;
@@ -1413,6 +1461,12 @@ textarea {
     flex-wrap: nowrap;
     overflow-x: auto;
     padding-bottom: 4px;
+    max-width: 100%;
+    scrollbar-width: none;
+  }
+
+  .tabs::-webkit-scrollbar {
+    display: none;
   }
 
   .tab {
@@ -1420,20 +1474,13 @@ textarea {
   }
 
   .action-menu {
-    position: fixed;
-    left: 16px;
-    right: 16px;
-    bottom: 16px;
-    top: auto;
-    width: auto;
-    transform: none !important;
-    border-radius: 18px;
-    padding: 9px;
+    width: min(215px, calc(100vw - 24px));
+    max-width: calc(100vw - 24px);
   }
 
   .action-menu button {
-    padding: 13px;
-    font-size: 15px;
+    padding: 11px;
+    font-size: 14px;
   }
 
   .vocabulary-preview-list {
