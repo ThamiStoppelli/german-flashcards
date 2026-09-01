@@ -300,7 +300,6 @@ export function DeckCard({ card, onUpdate, onMove, onDelete }: DeckCardProps) {
 
           <div className="word-meta">
             <span className="pill">{card.level}</span>
-            <span className="pill">{card.source}</span>
 
             <span className={`status-badge ${card.status}`}>
               {SHORT_STATUS_LABELS[card.status]}

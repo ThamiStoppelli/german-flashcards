@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, type ReactNode } from "react";
-import type { CardDraft, CardStats, CardStatus, Flashcard } from "../types";
+import type { CardDraft, CardStats, CardStatus, Flashcard, ReviewRating } from "../types";
 import { ConfirmModal } from "./ConfirmModal";
 import { EditCardModal } from "./EditCardModal";
 
@@ -9,7 +9,7 @@ type StudyPanelProps = {
   card?: Flashcard;
   stats: CardStats;
   progress: number;
-  onReview: (id: string, quality: "again" | "good") => void;
+  onReview: (id: string, rating: ReviewRating) => void;
   onMove: (id: string, status: CardStatus) => void;
   onUpdate: (id: string, draft: CardDraft) => void;
   onDelete: (id: string) => void;
@@ -52,6 +52,25 @@ function AgainIcon() {
     <StudyIcon>
       <path d="M4 10a8 8 0 1 1 2 7" />
       <path d="M4 4v6h6" />
+    </StudyIcon>
+  );
+}
+
+function HardIcon() {
+  return (
+    <StudyIcon>
+      <path d="M12 9v4" />
+      <path d="M12 17h.01" />
+      <path d="M10.3 4.4 2.7 18a2 2 0 0 0 1.7 3h15.2a2 2 0 0 0 1.7-3L13.7 4.4a2 2 0 0 0-3.4 0Z" />
+    </StudyIcon>
+  );
+}
+
+function EasyIcon() {
+  return (
+    <StudyIcon>
+      <path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8Z" />
+      <path d="M19 15l.8 2.2L22 18l-2.2.8L19 21l-.8-2.2L16 18l2.2-.8Z" />
     </StudyIcon>
   );
 }
@@ -132,9 +151,9 @@ export function StudyPanel({
     setShowAnswer(false);
   }, [card?.id]);
 
-  function handleReview(quality: "again" | "good") {
+  function handleReview(rating: ReviewRating) {
     if (!card) return;
-    onReview(card.id, quality);
+    onReview(card.id, rating);
     setShowAnswer(false);
   }
 
@@ -232,16 +251,34 @@ export function StudyPanel({
                 </button>
 
                 <button
+                  className="btn warn"
+                  type="button"
+                  onClick={() => handleReview("hard")}
+                >
+                  <HardIcon />
+                  <span>Hard</span>
+                </button>
+
+                <button
                   className="btn"
                   type="button"
                   onClick={() => handleReview("good")}
                 >
                   <ActiveStudyIcon />
-                  <span>Keep active</span>
+                  <span>Good</span>
                 </button>
 
                 <button
                   className="btn success"
+                  type="button"
+                  onClick={() => handleReview("easy")}
+                >
+                  <EasyIcon />
+                  <span>Easy</span>
+                </button>
+
+                <button
+                  className="btn secondary"
                   type="button"
                   onClick={() => handleMove("learned")}
                 >
@@ -250,7 +287,7 @@ export function StudyPanel({
                 </button>
 
                 <button
-                  className="btn warn"
+                  className="btn secondary"
                   type="button"
                   onClick={() => handleMove("future")}
                 >

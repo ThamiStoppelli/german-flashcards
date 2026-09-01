@@ -1,14 +1,38 @@
 import type { Flashcard, CandidateCard } from "../types";
 
+function normalizeStoredCard(card: Flashcard): Flashcard {
+  const now = new Date().toISOString();
+
+  return {
+    ...card,
+    tags: Array.isArray(card.tags) ? card.tags : [],
+    ease: typeof card.ease === "number" ? card.ease : 2.5,
+    repetitions:
+      typeof card.repetitions === "number" ? card.repetitions : 0,
+    intervalDays:
+      typeof card.intervalDays === "number" ? card.intervalDays : 0,
+    lapses: typeof card.lapses === "number" ? card.lapses : 0,
+    nextReviewAt:
+      typeof card.nextReviewAt === "string" ? card.nextReviewAt : now,
+    createdAt: typeof card.createdAt === "string" ? card.createdAt : now,
+  };
+}
+
 export function loadCards(storageKey: string, fallback: Flashcard[]): Flashcard[] {
   try {
     const raw = window.localStorage.getItem(storageKey);
-    if (!raw) return fallback;
+
+    if (!raw) {
+      return fallback.map(normalizeStoredCard);
+    }
 
     const parsed: unknown = JSON.parse(raw);
-    return Array.isArray(parsed) ? (parsed as Flashcard[]) : fallback;
+
+    return Array.isArray(parsed)
+      ? (parsed as Flashcard[]).map(normalizeStoredCard)
+      : fallback.map(normalizeStoredCard);
   } catch {
-    return fallback;
+    return fallback.map(normalizeStoredCard);
   }
 }
 
@@ -161,7 +185,7 @@ export async function readImportedCards(
 
   return importedCards.map((value, index) => {
     if (isFlashcard(value)) {
-      return value;
+      return normalizeStoredCard(value);
     }
 
     if (isCandidateCard(value)) {
@@ -177,6 +201,8 @@ export async function readImportedCards(
         status: "active",
         ease: 2.5,
         repetitions: 0,
+        intervalDays: 0,
+        lapses: 0,
         nextReviewAt: now,
         createdAt: now,
         source: "manual",

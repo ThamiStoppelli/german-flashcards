@@ -3,14 +3,14 @@
 import { useEffect, useMemo, useState } from "react";
 import { STORAGE_KEY } from "../constants";
 import { seedCards } from "../data/seed";
-import { calculateNextReview, createCard, shuffle } from "../lib/cards";
+import { createCard, scheduleReview, shuffle } from "../lib/cards";
 import {
   exportCards,
   loadCards,
   readImportedCards,
   saveCards
 } from "../lib/storage";
-import type { CandidateCard, CardDraft, CardStatus, Flashcard } from "../types";
+import type { CandidateCard, CardDraft, CardStatus, Flashcard, ReviewRating } from "../types";
 
 export function useFlashcards() {
   const [cards, setCards] = useState<Flashcard[]>([]);
@@ -135,22 +135,13 @@ export function useFlashcards() {
     );
   }
 
-  function reviewCard(id: string, quality: "again" | "good") {
-    setCards((previous) =>
+  function reviewCard(id: string, rating: ReviewRating) {
+  setCards((previous) =>
       previous.map((card) =>
-        card.id === id
-          ? {
-            ...card,
-            repetitions: quality === "again" ? 0 : card.repetitions + 1,
-            ease:
-              quality === "again"
-                ? Math.max(1.3, card.ease - 0.2)
-                : Math.min(3.2, card.ease + 0.08),
-            nextReviewAt: calculateNextReview(card.repetitions, quality),
-          }
-          : card,
+        card.id === id ? scheduleReview(card, rating) : card,
       ),
     );
+
     setStudyQueue((previous) =>
       previous.filter((cardId) => cardId !== id),
     );

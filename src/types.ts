@@ -1,5 +1,6 @@
 export type CardStatus = "active" | "learned" | "future";
 export type GermanLevel = "A1" | "A2" | "B1" | "B2" | "C1" | "C2";
+export type ReviewRating = "again" | "hard" | "good" | "easy";
 
 export type Flashcard = {
   id: string;
@@ -13,6 +14,9 @@ export type Flashcard = {
   status: CardStatus;
   ease: number;
   repetitions: number;
+  intervalDays: number;
+  lapses: number;
+  lastReviewedAt?: string;
   nextReviewAt: string;
   createdAt: string;
   source: "manual" | "core" | "seed";
