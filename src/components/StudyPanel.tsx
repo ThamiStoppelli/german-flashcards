@@ -241,6 +241,15 @@ export function StudyPanel({
               </button>
             ) : (
               <>
+
+                <button
+                  className="btn secondary"
+                  type="button"
+                  onClick={() => handleMove("learned")}
+                >
+                  <KnownIcon />
+                  <span>I know this</span>
+                </button>
                 <button
                   className="btn danger"
                   type="button"
@@ -275,15 +284,6 @@ export function StudyPanel({
                 >
                   <EasyIcon />
                   <span>Easy</span>
-                </button>
-
-                <button
-                  className="btn secondary"
-                  type="button"
-                  onClick={() => handleMove("learned")}
-                >
-                  <KnownIcon />
-                  <span>I know this</span>
                 </button>
 
                 <button
